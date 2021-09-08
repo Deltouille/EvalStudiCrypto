@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>{% block title %}Welcome!{% endblock %}</title>
+        {% block stylesheets %}
+        {{ encore_entry_link_tags('tailwind') }}
+            <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
+
+        {% endblock %}
+    </head>
+    <body class="bg-crypto-light">
+        {% block body %}
+
+        {% endblock %}
+        
+        {% block javascripts %}
+        
+        {% endblock %}
+    </body>
+</html>
