@@ -3,7 +3,28 @@
 {% block title %}Hello DemoController!{% endblock %}
  
 {% block body %}
-<div class="flex bg-black">
- 
+<div id="menu" class="bg-crypto-light h-16" >
+    <h1 style="color: white;" class="font-bold">Crypto Tracker
+    <i class="fas fa-plus fa-3x  right-full float-right" style="color: white;"></i>
+    <i class="fas fa-pen  fa-3x  right-full float-right" style="color: white;"></i></h1>
+</div>
+<div id="compteur" class="bg-black h-48 w-full overflow-hidden">
+    <img src="{{ asset('img/backgroundcompteur.png') }}" class="w-full z-10">
+</div>
+<div class="grid justify-center">
+    <table class="table table-striped table-bordered" style="width:100%">
+        <thead>
+            <tr>
+                <th style="border-top:0px solid black; padding-left: 9px; text-align: center;"></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for crypto in listeCrypto %}
+            <tr>
+                <td style="text-align: center; color: #efefef;" class="font-bold">{{ crypto.name }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
 {% endblock %}
