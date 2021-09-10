@@ -1,0 +1,8 @@
+Formulaire -> Nom de la crypto -> récupere tout les noms de crypto depuis l'api
+		   -> Quantitée -> rentrée a la main
+           -> Prix -> Prix récupéré depuis l'api 
+           -> Ajout du prix et de du nom depuis le controller
+
+Accueil -> Comparaison du prix trouvable grace a l'api a celui du total dans la base de donnée
+    exemple -> Si le prix de la monnaie dans l'api > au total dans la base de donnée = fleche vers le haut
+    sinon fleche vers le bas

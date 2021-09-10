@@ -1,0 +1,58 @@
+    <div class="justify-items-center">
+        {{ form_start(form, {'attr': {'class': 'form-horizontal'}}) }}
+        
+        {# Les erreurs générales du formulaire #}
+        {{ form_errors(form) }}
+
+        {# Génération manuelle du formulaire #}
+        {# Nom de la cryptomonnaie #}
+        <div class="form-group mx-8 sm:mx-8 md:mx-8 lg:mx-8 xl:mx-8 2xl:mx-8">
+            {# Génération du label #}
+            {{ form_label(form.name, "Nom de la crypto", {'label_attr': {'class': 'cal-sm-2 control-label ', 'style': 'color: white;'}}) }}
+            {# Affichage des erreurs pour ce champ précis #}
+            {{ form_errors(form.name) }}
+            <div>
+                {# Génération de l'input. #}
+                {{ form_widget(form.name, {'attr': {'class': 'form-control'}}) }}
+            </div>
+        </div>
+        {# Quantitée #}
+        <div class="form-group mx-8 sm:mx-8 md:mx-8 lg:mx-8 xl:mx-8 2xl:mx-8">
+            {# Génération du label #}
+            {{ form_label(form.quantity, "Quantitée achetée", {'label_attr': {'class': 'cal-sm-2 control-label', 'style': 'color: white;'}}) }}
+            {# Affichage des erreurs pour ce champ précis #}
+            {{ form_errors(form.quantity) }}
+            <div>
+                {# Génération de l'input. #}
+                {{ form_widget(form.quantity, {'attr': {'class': 'form-control'}}) }}
+            </div>
+        </div>
+        {# Prix #}
+        <div class="form-group mx-8 sm:mx-8 md:mx-8 lg:mx-8 xl:mx-8 2xl:mx-8">
+            {# Génération du label #}
+            {{ form_label(form.price, "Prix de la crypto", {'label_attr': {'class': 'cal-sm-2 control-label', 'style': 'color: white;'}}) }}
+            {# Affichage des erreurs pour ce champ précis #}
+            {{ form_errors(form.price) }}
+            <div>
+                {# Génération de l'input. #}
+                {{ form_widget(form.price, {'attr': {'class': 'form-control'}}) }}
+            </div>
+        </div>
+        <p>
+            <div class="container">
+                <div class="row">
+                    <div class="col">
+                    </div>
+                    <div class="col">
+                        {# Génération automatique des champs pas encore écrits #}
+                        {# Pour le bouton, pas de label ni d'erreur, on affiche juste le widget #}
+                        {{ form_widget(form.submit, {'attr': {'class': 'bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded'}}) }}
+                        {# Fermeture de la balise <form> de formulaire HTML #}
+                        {{ form_end(form) }}
+                    </div>
+                    <div class="col">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
