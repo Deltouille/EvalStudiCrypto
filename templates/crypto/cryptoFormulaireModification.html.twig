@@ -19,23 +19,12 @@
         {# Quantitée #}
         <div class="form-group mx-8 sm:mx-8 md:mx-8 lg:mx-8 xl:mx-8 2xl:mx-20">
             {# Génération du label #}
-            {{ form_label(form.quantity, "Quantitée achetée", {'label_attr': {'class': 'cal-sm-2 control-label', 'style': 'color: white;'}}) }}
+            {{ form_label(form.quantity, "Quantitée a enlever", {'label_attr': {'class': 'cal-sm-2 control-label', 'style': 'color: white;'}}) }}
             {# Affichage des erreurs pour ce champ précis #}
             {{ form_errors(form.quantity) }}
             <div>
                 {# Génération de l'input. #}
                 {{ form_widget(form.quantity, {'attr': {'class': 'form-control'}}) }}
-            </div>
-        </div>
-        {# Prix #}
-        <div class="form-group mx-8 sm:mx-8 md:mx-8 lg:mx-8 xl:mx-8 2xl:mx-20">
-            {# Génération du label #}
-            {{ form_label(form.price, "Prix d'achat de la crypto", {'label_attr': {'class': 'cal-sm-2 control-label', 'style': 'color: white;'}}) }}
-            {# Affichage des erreurs pour ce champ précis #}
-            {{ form_errors(form.price) }}
-            <div>
-                {# Génération de l'input. #}
-                {{ form_widget(form.price, {'attr': {'class': 'form-control'}}) }}
             </div>
         </div>
         <p>

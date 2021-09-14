@@ -1,0 +1,19 @@
+{% extends "base.html.twig" %}
+{% block title%}
+
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+{% endblock %}
+
+{% block body %}
+<div>
+    <div class="justify-center">
+        </div>
+        <h1 class="text-center" style="color: white;">Ajout d'une crypto</h1>
+        <hr />
+        {{ include('crypto/cryptoFormulaireModification.html.twig')}}
+    </div>
+</html>
+{% endblock %}

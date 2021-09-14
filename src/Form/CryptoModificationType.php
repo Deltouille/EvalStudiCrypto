@@ -11,7 +11,7 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\EntityType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 
-class CryptoType extends AbstractType
+class CryptoModificationType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
@@ -24,7 +24,7 @@ class CryptoType extends AbstractType
                     'Bitcoin' => 'BTC',
                     'Ethereum' => 'ETH',
                     'Cardano' => 'ADA',
-                    'Tether' => 'USDT',
+                    'Tether' => 'Tether',
                     'XRP' => 'XRP',
                     'Solana' => 'SOL',
                     'Polkadot' => 'DOT',
@@ -32,7 +32,6 @@ class CryptoType extends AbstractType
                 ]
             ))
             ->add('quantity', TextType::class)
-            ->add('price', TextType::class)
             ->add('submit', SubmitType::class)
         ;
     }
@@ -43,6 +42,4 @@ class CryptoType extends AbstractType
             'data_class' => Cryptocurrency::class,
         ]);
     }
-
-
 }

@@ -32,6 +32,11 @@ class Cryptocurrency
      */
     private $price;
 
+    /**
+     * @ORM\Column(type="float")
+     */
+    private $totalPrice;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -69,6 +74,18 @@ class Cryptocurrency
     public function setPrice(float $price): self
     {
         $this->price = $price;
+
+        return $this;
+    }
+
+    public function getTotalPrice(): ?float
+    {
+        return $this->totalPrice;
+    }
+
+    public function setTotalPrice(float $totalPrice): self
+    {
+        $this->totalPrice = $totalPrice;
 
         return $this;
     }
