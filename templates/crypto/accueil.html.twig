@@ -25,7 +25,16 @@
                 <tbody>
                     {% for crypto in listeCrypto %}
                     <tr>
-                        <td style="color: #efefef;" class="font-bold"><img src="{{ asset('img/' ~ crypto.name ~ '.png') }}" class="w-10 float-left">{{ crypto.name }}</td>
+                        <td style="color: #efefef;" class="font-bold"><img src="{{ asset('img/' ~ crypto.name ~ '.png') }}" class="w-10 float-left">{{ crypto.name }}
+                        {% for nomCrypto in listeCurrentAPIPrice|keys %}
+                            {% if nomCrypto == crypto.name %}
+                                {% if listeCurrentAPIPrice[nomCrypto] > crypto.price  %}
+                                    <i class="fas fa-arrow-up fa-2x float-right" style="color: white;"></i>
+                                {% elseif listeCurrentAPIPrice[nomCrypto] < crypto.price %}
+                                    <i class="fas fa-arrow-down fa-2x float-right" style="color : white;"></i>
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}</td>
                     </tr>
                     {% endfor %}
                 </tbody>

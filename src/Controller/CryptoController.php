@@ -9,6 +9,8 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\Cryptocurrency;
 use App\Form\CryptoType;
 use App\Form\CryptoModificationType;
+use Symfony\UX\Chartjs\Builder\ChartBuilderInterface;
+use Symfony\UX\Chartjs\Model\Chart;
 class CryptoController extends AbstractController
 {
     /**
@@ -21,19 +23,26 @@ class CryptoController extends AbstractController
         $listeCrypto = $cryptoRepository->findAll();
         $listePriceAchat = array();
         $listeCurrentAPIPrice = array();
+        $listeCurrentTotalAPIPrice = array();
+
         foreach($listeCrypto as $crypto)
         {
-            $currentPrice = $this->getCryptoPrice($crypto->getName());
-            $currentAPIPrice = $currentPrice * $crypto->getQuantity();
+            //On récupère le prix actuel de la crypto en cours grâce a l'API
+            $currentAPIPrice = $this->getCryptoPrice($crypto->getName());
+            //On enregistre les valeurs dans un tableau
+            $listeCurrentAPIPrice[$crypto->getName()] = $currentAPIPrice;
+            //On calcule le total du prix actuel de la crypto avec la quantité que l'on as dans la base de donnée
+            $currentTotalAPIPrice = $currentAPIPrice * $crypto->getQuantity();
             array_push($listePriceAchat, $crypto->getTotalPrice());
-            array_push($listeCurrentAPIPrice, $currentAPIPrice);
+            array_push($listeCurrentTotalAPIPrice, $currentTotalAPIPrice);
         }
+        //On calcul le total des prix totaux de chaque crypto présent dans la base de données
         $totalPriceAchat = array_sum($listePriceAchat);
-        $totalAPIPrice = array_sum($listeCurrentAPIPrice);
-        dd($totalAPIPrice - $totalPriceAchat);
-
-
-        return $this->render('crypto/accueil.html.twig', ['listeCrypto' => $listeCrypto]);
+        //On calcul le prix total des crypto a ce moment avec la même quantité de crypto que celles présentes dans la base de données
+        $totalAPIPrice = array_sum($listeCurrentTotalAPIPrice);
+        //On calcule la valorisation
+        $valorisation = $totalAPIPrice - $totalPriceAchat;
+        return $this->render('crypto/accueil.html.twig', ['listeCrypto' => $listeCrypto, 'valorisation' => $valorisation, 'listeCurrentAPIPrice' => $listeCurrentAPIPrice]);
     }
 
     /**
@@ -63,9 +72,31 @@ class CryptoController extends AbstractController
     /**
      * @Route("/graph", name="graph")
      */
-    public function graph(): Response
+    public function graph(ChartBuilderInterface $chartBuilder): Response
     {
+        $chart = $chartBuilder->createChart(Chart::TYPE_LINE);
+        $chart->setData([
+            'labels' => ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+            'datasets' => [
+                [
+                    'label' => 'My First dataset',
+                    'backgroundColor' => 'rgb(255, 99, 132)',
+                    'borderColor' => 'rgb(255, 99, 132)',
+                    'data' => [0, 10, 5, 2, 20, 30, 45],
+                ],
+            ],
+        ]);
+        $chart->setOptions([
+            'scales' => [
+                'yAxes' => [
+                    ['ticks' => ['min' => 0, 'max' => 100]],
+                ],
+            ],
+        ]);
 
+        return $this->render('crypto/chart.html.twig', [
+            'chart' => $chart,
+        ]);
     }
 
     
@@ -116,7 +147,7 @@ class CryptoController extends AbstractController
             ];
         $headers = [
                 'Accepts: application/json',
-                'X-CMC_PRO_API_KEY: ',
+                'X-CMC_PRO_API_KEY: no lol',
             ];
         $qs = http_build_query($parameters); // query string encode the parameters
         $request = "{$url}?{$qs}"; // create the request URL
