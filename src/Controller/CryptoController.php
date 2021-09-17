@@ -7,6 +7,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\Cryptocurrency;
+use App\Entity\SauvegardeJournaliere;
 use App\Form\CryptoType;
 use App\Form\CryptoModificationType;
 use Symfony\UX\Chartjs\Builder\ChartBuilderInterface;
@@ -18,12 +19,23 @@ class CryptoController extends AbstractController
      */
     public function index(): Response
     {
-        $em = $this->getDoctrine()->getManager();
-        $cryptoRepository = $em->getRepository(Cryptocurrency::class);
-        $listeCrypto = $cryptoRepository->findAll();
+       
+        ///On créer un tableau listePriceAchat qui vas servir a enregistrer le prix total a l'achat de chaque cryptomonnaie présente dans la base de donnée pour pouvoir calculer la valorisation
         $listePriceAchat = array();
-        $listeCurrentAPIPrice = array();
         $listeCurrentTotalAPIPrice = array();
+        //On créer un tableau listeCurrentAPIPrice qui vas servir a récupèrer le prix actuel de chaque cryptomonnaie grâce a l'API
+        $listeCurrentAPIPrice = array();
+        //On créer une variable "aujourd'hui" qui vas récupérer la date courante
+        $aujourdhui = date('Y-m-d');
+        //dd($aujourdhui->format('Y-m-d'));
+        //On récupère l'EntityManager
+        $em = $this->getDoctrine()->getManager();
+        //On récupère le repository de la classe Cryptocurrency
+        $cryptoRepository = $em->getRepository(Cryptocurrency::class);
+        //On Récupère la liste des crypto enregistrés dans la base de donnée
+        $listeCrypto = $cryptoRepository->findAll();
+        //On récupère le repository de la classe SauvegardeJournalière
+        $sauvegardeJournaliere = $em->getRepository(SauvegardeJournaliere::class);        
 
         foreach($listeCrypto as $crypto)
         {
@@ -42,6 +54,14 @@ class CryptoController extends AbstractController
         $totalAPIPrice = array_sum($listeCurrentTotalAPIPrice);
         //On calcule la valorisation
         $valorisation = $totalAPIPrice - $totalPriceAchat;
+        //On regarde si la date d'aujourd'hui n'existe pas déjà dans la base de donnée, si c'est le cas on l'ajoute
+        if($sauvegardeJournaliere->findByDate($aujourdhui) == null){
+            $sauvegarde = new SauvegardeJournaliere();
+            $sauvegarde->setDate($aujourdhui);
+            $sauvegarde->setValorisationTotale(round($valorisation));
+            $em->persist($sauvegarde);
+            $em->flush();
+        }
         return $this->render('crypto/accueil.html.twig', ['listeCrypto' => $listeCrypto, 'valorisation' => $valorisation, 'listeCurrentAPIPrice' => $listeCurrentAPIPrice]);
     }
 
@@ -74,22 +94,30 @@ class CryptoController extends AbstractController
      */
     public function graph(ChartBuilderInterface $chartBuilder): Response
     {
+        $em = $this->getDoctrine()->getManager();
+        $sauvegardeJournaliere = $em->getRepository(SauvegardeJournaliere::class);
+        $listeSauvegarde = $sauvegardeJournaliere->findAll();
+        $listeSauvegardeDates = array();
+        $listeSauvegardeValorisation = array(); 
+        foreach($listeSauvegarde as $laSauvegarde){
+            array_push($listeSauvegardeDates, $laSauvegarde->getDate());
+            array_push($listeSauvegardeValorisation, $laSauvegarde->getValorisationTotale());
+        }
         $chart = $chartBuilder->createChart(Chart::TYPE_LINE);
         $chart->setData([
-            'labels' => ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+            'labels' => $listeSauvegardeDates,
             'datasets' => [
                 [
-                    'label' => 'My First dataset',
-                    'backgroundColor' => 'rgb(255, 99, 132)',
-                    'borderColor' => 'rgb(255, 99, 132)',
-                    'data' => [0, 10, 5, 2, 20, 30, 45],
+                    'label' => 'Valorisation',
+                    'borderColor' => 'rgb(31,195,108)',
+                    'data' => $listeSauvegardeValorisation,
                 ],
             ],
         ]);
         $chart->setOptions([
             'scales' => [
                 'yAxes' => [
-                    ['ticks' => ['min' => 0, 'max' => 100]],
+                    ['ticks' => ['min' => 0, 'max' => 10000]],
                 ],
             ],
         ]);
@@ -147,7 +175,7 @@ class CryptoController extends AbstractController
             ];
         $headers = [
                 'Accepts: application/json',
-                'X-CMC_PRO_API_KEY: no lol',
+                'X-CMC_PRO_API_KEY: ',
             ];
         $qs = http_build_query($parameters); // query string encode the parameters
         $request = "{$url}?{$qs}"; // create the request URL

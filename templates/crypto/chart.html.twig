@@ -8,8 +8,9 @@
 {% endblock %}
 
 {% block body %}
-{{ render_chart(chart) }}
-
+        <h1 class="text-center" style="color: white;">Vos gains</h1>
+        <hr />
 {# You can pass HTML attributes as a second argument to add them on the <canvas> tag #}
 {{ render_chart(chart, {'class': 'my-chart'}) }}
+
 {% endblock %}

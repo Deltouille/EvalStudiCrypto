@@ -18,12 +18,12 @@ class SauvegardeJournaliere
     private $id;
 
     /**
-     * @ORM\Column(type="date")
+     * @ORM\Column(type="string", length="255")
      */
     private $date;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="integer")
      */
     private $valorisationTotale;
 
@@ -32,24 +32,24 @@ class SauvegardeJournaliere
         return $this->id;
     }
 
-    public function getDate(): ?\DateTimeInterface
+    public function getDate(): ?string
     {
         return $this->date;
     }
 
-    public function setDate(\DateTimeInterface $date): self
+    public function setDate(string $date): self
     {
         $this->date = $date;
 
         return $this;
     }
 
-    public function getValorisationTotale(): ?string
+    public function getValorisationTotale(): ?int
     {
         return $this->valorisationTotale;
     }
 
-    public function setValorisationTotale(string $valorisationTotale): self
+    public function setValorisationTotale(int $valorisationTotale): self
     {
         $this->valorisationTotale = $valorisationTotale;
 

@@ -3,19 +3,19 @@
 {% block title %}Hello DemoController!{% endblock %}
  
 {% block body %}
-<div id="menu" class="bg-crypto-light h-16" >
-    <h1 style="color: white;" class="font-bold">Crypto Tracker
-    <i class="fas fa-plus fa-3x right-full float-right" style="color: white;"></i>
-    <i class="fas fa-pen  fa-3x right-full float-right" style="color: white;"></i></h1>
+<div id="menu" class="bg-crypto-light" >
+    <h1 style="color: white;" class="font-bold m-3">Crypto Tracker
+    <i class="fas fa-plus fa-1x right-full float-right mr-1" style="color: white;"></i>
+    <i class="fas fa-pen  fa-1x right-full float-right ml-1" style="color: white;"></i></h1>
 </div>
 <div id="compteur" class="bg-black h-48 w-full overflow-hidden">
     <img src="{{ asset('img/backgroundcompteur.png') }}" class="w-full z-10">
 </div>
 <div class="container">
     <div class="row">
-        <div class="col-sm">
+        <div class="col">
         </div>
-        <div class="col-sm">
+        <div class="col-10">
             <table class="table table-striped" style="width:100%">
                 <thead>
                     <tr>
@@ -40,7 +40,7 @@
                 </tbody>
             </table>
         </div>
-        <div class="col-sm">
+        <div class="col">
         </div>
     </div>
 </div>
