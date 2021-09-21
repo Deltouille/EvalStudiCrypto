@@ -5,11 +5,18 @@
 {% block body %}
 <div id="menu" class="bg-crypto-light" >
     <h1 style="color: white;" class="font-bold m-3">Crypto Tracker
-    <i class="fas fa-plus fa-1x right-full float-right mr-1" style="color: white;"></i>
-    <i class="fas fa-pen  fa-1x right-full float-right ml-1" style="color: white;"></i></h1>
+    <a href="{{ path('ajout') }}"><i class="fas fa-plus fa-1x right-full float-right mr-1" style="color: white;"></i></a></h1>
+    
 </div>
-<div id="compteur" class="bg-black h-48 w-full overflow-hidden">
+<div id="compteur" class="bg-black h-48 w-full overflow-hidden relative">
     <img src="{{ asset('img/backgroundcompteur.png') }}" class="w-full z-10">
+    <h1 class="absolute top-1/2 left-1/2 text-center" style="color: white; transform: translate(-50%, -50%);"><a href="{{ path('graph') }}" style="text-decoration: none; color: white;">
+        {% if valorisation > 0 %}
+            <b>+ {{ valorisation }} €</b>
+        {% elseif valorisation < 0 %}
+            <b>{{ valorisation }} €</b>
+        {% endif %}
+    </a></h1>
 </div>
 <div class="container">
     <div class="row">
@@ -25,7 +32,14 @@
                 <tbody>
                     {% for crypto in listeCrypto %}
                     <tr>
-                        <td style="color: #efefef;" class="font-bold"><img src="{{ asset('img/' ~ crypto.name ~ '.png') }}" class="w-10 float-left">{{ crypto.name }}
+                        <td style="color: #efefef;" class="font-bold"><img src="{{ asset('img/' ~ crypto.name ~ '.png') }}" class="w-10 float-left"><h3 class="float-left m-1">{{ crypto.name }}</h3>
+                        {# On regarde pour chaque clés du tableau "listeCryptoName" (qui sont le nom des cryptomonnaie, BTC, ETH, Etc...) et on compare avec le nom de la crypto en cours afin d'afficher le nom complet de la crypto monnaie  #}
+                        {% for nomCrypto in listeCryptoName|keys %}
+                            {% if nomCrypto == crypto.name %} 
+                                <p class="float-left m-1">({{listeCryptoName[nomCrypto]}}) </p>
+                            {% endif %}
+                        {% endfor %}
+                        {# On regarde chaque clés du tableau "listeCurrentAPIPrice" (qui sont le nom des cryptomonnaie, BTC, ETH, Etc...) et ont compare avec le nom de la crypto en cours afin d'afficher si le prix monte ou si le prix descend #}
                         {% for nomCrypto in listeCurrentAPIPrice|keys %}
                             {% if nomCrypto == crypto.name %}
                                 {% if listeCurrentAPIPrice[nomCrypto] > crypto.price  %}
@@ -34,7 +48,9 @@
                                     <i class="fas fa-arrow-down fa-2x float-right" style="color : white;"></i>
                                 {% endif %}
                             {% endif %}
-                        {% endfor %}</td>
+                        {% endfor %}
+                            <a href="{{ path('suppression-montant', {id: crypto.id}) }}"><i class="fas fa-pen  fa-1x right-full float-right mr-2 mt-2" style="color: white;"></i></a>
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>

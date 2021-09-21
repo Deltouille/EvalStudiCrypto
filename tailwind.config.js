@@ -5,6 +5,7 @@ module.exports = {
         colors: {
             crypto:{
                 light: '#100f0f',
+                button: '#efefef',
             }
         }
     }

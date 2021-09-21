@@ -19,7 +19,6 @@ class CryptoType extends AbstractType
             ->add('name', ChoiceType::class, array(
                 'placeholder' => 'Sélectionner une crypto',
                 'required' => true,
-                'disabled' => true,
                 'choices' => [
                     'Bitcoin' => 'BTC',
                     'Ethereum' => 'ETH',
@@ -31,8 +30,18 @@ class CryptoType extends AbstractType
                     'Dogecoin' => 'DOGE',
                 ]
             ))
-            ->add('quantity', TextType::class)
-            ->add('price', TextType::class)
+            ->add('quantity', TextType::class, array(
+                'required' => true,
+                'attr' => array(
+                    'placeholder' => 'Quantité',
+                )
+            ))
+            ->add('price', TextType::class, array(
+                'required' => true,
+                'attr' => array(
+                    'placeholder' => 'Prix d\'achat (a l\'unité)',
+                )
+            ))
             ->add('submit', SubmitType::class)
         ;
     }

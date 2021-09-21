@@ -8,9 +8,8 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\EntityType;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-
 class CryptoModificationType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
@@ -31,7 +30,12 @@ class CryptoModificationType extends AbstractType
                     'Dogecoin' => 'DOGE',
                 ]
             ))
-            ->add('quantity', TextType::class)
+            ->add('quantity', TextType::class, array(
+                'required' => true,
+                'attr' => array(
+                    'placeholder' => 'Insérez un montant a enlever (exemple : 0.01 bitcoin)',
+                )
+            ))
             ->add('submit', SubmitType::class)
         ;
     }

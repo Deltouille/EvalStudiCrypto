@@ -6,36 +6,36 @@
 
         {# Génération manuelle du formulaire #}
         {# Nom de la cryptomonnaie #}
-        <div class="form-group mx-8 sm:mx-8 md:mx-8 lg:mx-8 xl:mx-8 2xl:mx-20">
+        <div class="form-group mx-16 sm:mx-16 md:mx-16 lg:mx-16 xl:mx-40 2xl:mx-60">
             {# Génération du label #}
-            {{ form_label(form.name, "Nom de la crypto", {'label_attr': {'class': 'cal-sm-2 control-label ', 'style': 'color: white;'}}) }}
+            {{ form_label(form.name, "Nom de la crypto", {'label_attr': {'class': 'cal-sm-2 control-label mt-4', 'style': 'color: white;'}}) }}
             {# Affichage des erreurs pour ce champ précis #}
             {{ form_errors(form.name) }}
             <div>
                 {# Génération de l'input. #}
-                {{ form_widget(form.name, {'attr': {'class': 'form-control'}}) }}
+                {{ form_widget(form.name, {'attr': {'class': 'form-control', 'style': 'background-color: #100f0f; color: white;'}}) }}
             </div>
         </div>
         {# Quantitée #}
-        <div class="form-group mx-8 sm:mx-8 md:mx-8 lg:mx-8 xl:mx-8 2xl:mx-20">
+        <div class="form-group mx-16 sm:mx-16 md:mx-16 lg:mx-16 xl:mx-40 2xl:mx-60">
             {# Génération du label #}
-            {{ form_label(form.quantity, "Quantitée achetée", {'label_attr': {'class': 'cal-sm-2 control-label', 'style': 'color: white;'}}) }}
+            {{ form_label(form.quantity, "Quantitée achetée", {'label_attr': {'class': 'cal-sm-2 control-label mt-4', 'style': 'color: white;'}}) }}
             {# Affichage des erreurs pour ce champ précis #}
             {{ form_errors(form.quantity) }}
             <div>
                 {# Génération de l'input. #}
-                {{ form_widget(form.quantity, {'attr': {'class': 'form-control'}}) }}
+                {{ form_widget(form.quantity, {'attr': {'class': 'form-control', 'style': 'color: white; background-color: #100f0f;'}}) }}
             </div>
         </div>
         {# Prix #}
-        <div class="form-group mx-8 sm:mx-8 md:mx-8 lg:mx-8 xl:mx-8 2xl:mx-20">
+        <div class="form-group mx-16 sm:mx-16 md:mx-16 lg:mx-16 xl:mx-40 2xl:mx-60">
             {# Génération du label #}
-            {{ form_label(form.price, "Prix d'achat de la crypto", {'label_attr': {'class': 'cal-sm-2 control-label', 'style': 'color: white;'}}) }}
+            {{ form_label(form.price, "Prix d'achat de la crypto", {'label_attr': {'class': 'cal-sm-2 control-label mt-4', 'style': 'color: white;'}}) }}
             {# Affichage des erreurs pour ce champ précis #}
             {{ form_errors(form.price) }}
             <div>
                 {# Génération de l'input. #}
-                {{ form_widget(form.price, {'attr': {'class': 'form-control'}}) }}
+                {{ form_widget(form.price, {'attr': {'class': 'form-control', 'style': 'background-color: #100f0f; color: white;'}}) }}
             </div>
         </div>
         <p>
@@ -43,10 +43,10 @@
                 <div class="row">
                     <div class="col">
                     </div>
-                    <div class="col">
+                    <div class="col" align="center">
                         {# Génération automatique des champs pas encore écrits #}
                         {# Pour le bouton, pas de label ni d'erreur, on affiche juste le widget #}
-                        {{ form_widget(form.submit, {'attr': {'class': 'bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded'}}) }}
+                        {{ form_widget(form.submit, {'attr': {'class': 'hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded', 'style': 'background-color: #efefef;'}}) }}
                         {# Fermeture de la balise <form> de formulaire HTML #}
                         {{ form_end(form) }}
                     </div>

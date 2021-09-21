@@ -8,6 +8,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\Cryptocurrency;
 use App\Entity\SauvegardeJournaliere;
+use App\Entity\API;
 use App\Form\CryptoType;
 use App\Form\CryptoModificationType;
 use Symfony\UX\Chartjs\Builder\ChartBuilderInterface;
@@ -19,15 +20,14 @@ class CryptoController extends AbstractController
      */
     public function index(): Response
     {
-       
-        ///On créer un tableau listePriceAchat qui vas servir a enregistrer le prix total a l'achat de chaque cryptomonnaie présente dans la base de donnée pour pouvoir calculer la valorisation
+        ///On créer un tableau "listePriceAchat" qui vas servir a enregistrer le prix total a l'achat de chaque cryptomonnaie présente dans la base de donnée pour pouvoir calculer la valorisation
         $listePriceAchat = array();
+        //On créer un tableau ""listeCurrentTotalAPIPrice" qui vas servir a enregistrer tous les prix des cryptomonnaie a leurs cours actuel
         $listeCurrentTotalAPIPrice = array();
-        //On créer un tableau listeCurrentAPIPrice qui vas servir a récupèrer le prix actuel de chaque cryptomonnaie grâce a l'API
+        //On créer un tableau "listeCurrentAPIPrice" qui vas servir a récupèrer le prix actuel de chaque cryptomonnaie grâce a l'API
         $listeCurrentAPIPrice = array();
         //On créer une variable "aujourd'hui" qui vas récupérer la date courante
         $aujourdhui = date('Y-m-d');
-        //dd($aujourdhui->format('Y-m-d'));
         //On récupère l'EntityManager
         $em = $this->getDoctrine()->getManager();
         //On récupère le repository de la classe Cryptocurrency
@@ -36,15 +36,17 @@ class CryptoController extends AbstractController
         $listeCrypto = $cryptoRepository->findAll();
         //On récupère le repository de la classe SauvegardeJournalière
         $sauvegardeJournaliere = $em->getRepository(SauvegardeJournaliere::class);        
-
+        //On récupère le nom de toutes les cryptos monnaies qu'on vas parcourir
+        $listeNameCrypto = array();
         foreach($listeCrypto as $crypto)
         {
             //On récupère le prix actuel de la crypto en cours grâce a l'API
-            $currentAPIPrice = $this->getCryptoPrice($crypto->getName());
+            $currentAPIPrice = $this->getCryptoPrice($crypto->getName(), 'price');
             //On enregistre les valeurs dans un tableau
             $listeCurrentAPIPrice[$crypto->getName()] = $currentAPIPrice;
             //On calcule le total du prix actuel de la crypto avec la quantité que l'on as dans la base de donnée
             $currentTotalAPIPrice = $currentAPIPrice * $crypto->getQuantity();
+            $listeNameCrypto[$crypto->getName()] = $this->getCryptoPrice($crypto->getName(), 'name');
             array_push($listePriceAchat, $crypto->getTotalPrice());
             array_push($listeCurrentTotalAPIPrice, $currentTotalAPIPrice);
         }
@@ -56,33 +58,55 @@ class CryptoController extends AbstractController
         $valorisation = $totalAPIPrice - $totalPriceAchat;
         //On regarde si la date d'aujourd'hui n'existe pas déjà dans la base de donnée, si c'est le cas on l'ajoute
         if($sauvegardeJournaliere->findByDate($aujourdhui) == null){
+            //On créer une nouvelle sauvegarde journalière
             $sauvegarde = new SauvegardeJournaliere();
+            //On lui passe la date du jour
             $sauvegarde->setDate($aujourdhui);
+            //On lui passe la valorisation du jour
             $sauvegarde->setValorisationTotale(round($valorisation));
+            //On persist dans la base de donnée
             $em->persist($sauvegarde);
+            //On flush
             $em->flush();
         }
-        return $this->render('crypto/accueil.html.twig', ['listeCrypto' => $listeCrypto, 'valorisation' => $valorisation, 'listeCurrentAPIPrice' => $listeCurrentAPIPrice]);
+        return $this->render('crypto/accueil.html.twig', ['listeCrypto' => $listeCrypto, 'valorisation' => round($valorisation), 'listeCurrentAPIPrice' => $listeCurrentAPIPrice, 'listeCryptoName' => $listeNameCrypto]);
     }
 
     /**
      * @Route("/ajout", name="ajout")
+     * 
+     * La fonction Ajout vas servir à ajouter une nouvelle cryptomonnaie.
+     * Elle fonctionne de cette façon :
+     * - On selectionne une cryptommonaie
+     * - On rentre la quantité que l'on à acheter
+     * - On rentre le prix unitaire auquel on as acheter la cryptomonnaie (exemple : On achete 50 Ethereum au prix unitaire de 5€)
+     * - Au moment d'appuyer sur le boutton Submit la fonction calculeras le prix total (50 ETH pour 5€ -> 250€) et enregisteras tout en base de donnée.
      */
     public function ajout(Request $request): Response
     {
+        //On créer une nouvelle crypto
         $crypto = new Cryptocurrency();
+        //On récupère l'entity manager
+        $em = $this->getDoctrine()->getManager();
+        //On créer un formulaire
         $form = $this->createForm(CryptoType::class, $crypto);
+        //On regarde si le formulaire a été posté avec la méthode POST
         if($request->isMethod('POST')){
             $form->handleRequest($request);
             if($form->isSubmitted() && $form->isValid()){
-                $cryptoSymbol = $crypto->getName();
+                //On récupère la quantité rentré dans le formulaire
                 $quantity = $crypto->getQuantity();
-                $price = $this->getCryptoPrice($cryptoSymbol);
+                //On récupère le prix rentré dans le formulaire
+                $price = $crypto->getPrice();
+                //On calcul le total
                 $totalPrice = $quantity * $price;
+                //On enregistre le total en base de donnée
                 $crypto->setTotalPrice($totalPrice);
-                $em = $this->getDoctrine()->getManager();
+                //On persist en base de donnée
                 $em->persist($crypto);
+                //On flush
                 $em->flush();
+                //On retourne sur la page d'accueil
                 return $this->redirectToRoute('accueil');
             }
         }
@@ -117,7 +141,7 @@ class CryptoController extends AbstractController
         $chart->setOptions([
             'scales' => [
                 'yAxes' => [
-                    ['ticks' => ['min' => 0, 'max' => 10000]],
+                    ['ticks' => ['min' => 0, 'max' => 50000]],
                 ],
             ],
         ]);
@@ -130,13 +154,27 @@ class CryptoController extends AbstractController
     
     /**
      * @Route("/suppression-montant/{id}", name="suppression-montant")
+     * 
+     * La fonctionne suppressionMontant vas servir a enlever une certaine quantité d'une cryptomonnaie choisie.
+     * Elle fonctionne de cette façon :
+     * - Après avoir choisis la cryptomonnaie a modifier depuis la page d'accueil, on choisis la quantité a retirer
+     * - Au moment d'appuyer sur le boutton "Submit", la fonction vas récuperer la quantité a enlever dans le formulaire et la soustraire a la quantité existante en base de donnée,
+     *   pour avoir la quantité finale. Une fois cela fait, la fonction vas récupèrer la valeur actuelle de la cryptomonnaie grâce a l'API de CoinMarketBase et vas ensuite calculer le nouveau total
+     *   pour l'enregistrer dans la base de donnée
+     * 
+     * /!\ La valeur par défaut dans le formulaire du montant est celui enregistré dans la base de donnée /!\
      */
     public function suppressionMontant(Request $request, int $id): Response
     {
+        //On récupère l'entity manager
         $em = $this->getDoctrine()->getManager();
+        //On récupère le repository de la table "Cryptocurrency"
         $cryptoRepository = $em->getRepository(Cryptocurrency::class);
+        //On récupère la cryptomonnaie a modifier
         $suppressionMontant = $cryptoRepository->find($id);
+        //On récupère la quantité présente en base de donnée
         $currentQuantity = $suppressionMontant->getQuantity();
+        //On créer un formulaire
         $form = $this->createForm(CryptoModificationType::class, $suppressionMontant);
         if($request->isMethod('POST')){
             $form->handleRequest($request);
@@ -148,7 +186,7 @@ class CryptoController extends AbstractController
                 //On ajuste la quantité totale
                 $newQuantity = $currentQuantity - $quantity;
                 //On récupère le prix courrant de la cryptomonnaie
-                $price = $this->getCryptoPrice($cryptoSymbol);
+                $price = $this->getCryptoPrice($cryptoSymbol, 'price');
                 //On ajuste le prix 
                 $totalPrice = $newQuantity * $price;
                 //On met a jour le prix total
@@ -166,7 +204,10 @@ class CryptoController extends AbstractController
         return $this->render('crypto/suppression.html.twig', ['form' => $form->createView()]);
     }
 
-    public function getCryptoPrice($cryptoSigne){
+    public function getCryptoPrice($cryptoSigne, $info){
+        $em = $this->getDoctrine()->getManager();
+        $apiRepository = $em->getRepository(API::class);
+        $getAPI = $apiRepository->findAll();
         setlocale(LC_MONETARY, 'fr_FR.UTF-8');
         $url = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest';
         $parameters = [
@@ -175,7 +216,7 @@ class CryptoController extends AbstractController
             ];
         $headers = [
                 'Accepts: application/json',
-                'X-CMC_PRO_API_KEY: ',
+                'X-CMC_PRO_API_KEY: '.$getAPI[0]->getAPI(),
             ];
         $qs = http_build_query($parameters); // query string encode the parameters
         $request = "{$url}?{$qs}"; // create the request URL
@@ -190,7 +231,14 @@ class CryptoController extends AbstractController
         $response = curl_exec($curl); // Send the request, save the response
         curl_close($curl); // Close request
         $var = json_decode($response, true);
-        $price = $var['data'][$cryptoSigne]['quote']['EUR']['price'];
-        return $price;
+        if($info == 'price'){
+            $price = $var['data'][$cryptoSigne]['quote']['EUR']['price'];
+            return $price;
+        }
+        if($info == 'name'){
+            $price = $var['data'][$cryptoSigne]['name'];
+            return $price;
+        }
+            
     }
 }
