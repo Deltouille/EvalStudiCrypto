@@ -5,7 +5,7 @@
 {% block body %}
 <h1 style="color: white;">{{ message }}</h1>
 <p>
-<h1 style="color: white;">Vous serez rediriger dans 5 secondes</h1>
+<h1 style="color: white;">Vous serez rediriger dans 1 minute</h1>
 {% endblock %}
 
 {% block javascripts %}
@@ -13,7 +13,7 @@
     $(document).ready( function () {
         window.setTimeout(function(){
             location.href = "{{ path('accueil') }}";
-        }, 5000);
+        }, 60000);
     } );
 </script>
 {% endblock %}
