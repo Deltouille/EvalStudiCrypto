@@ -27,6 +27,11 @@ class CryptoListe
      */
     private $symbol;
 
+    /**
+     * @ORM\Column(type="decimal", precision=10, scale=3)
+     */
+    private $j;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -52,6 +57,18 @@ class CryptoListe
     public function setSymbol(string $symbol): self
     {
         $this->symbol = $symbol;
+
+        return $this;
+    }
+
+    public function getJ(): ?string
+    {
+        return $this->j;
+    }
+
+    public function setJ(string $j): self
+    {
+        $this->j = $j;
 
         return $this;
     }

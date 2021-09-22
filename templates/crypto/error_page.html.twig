@@ -1,0 +1,19 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello DemoController!{% endblock %}
+ 
+{% block body %}
+<h1 style="color: white;">{{ message }}</h1>
+<p>
+<h1 style="color: white;">Vous serez rediriger dans 5 secondes</h1>
+{% endblock %}
+
+{% block javascripts %}
+<script type="text/javascript">
+    $(document).ready( function () {
+        window.setTimeout(function(){
+            location.href = "{{ path('accueil') }}";
+        }, 5000);
+    } );
+</script>
+{% endblock %}

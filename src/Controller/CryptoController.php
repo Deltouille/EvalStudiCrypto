@@ -42,11 +42,20 @@ class CryptoController extends AbstractController
         {
             //On récupère le prix actuel de la crypto en cours grâce a l'API
             $currentAPIPrice = $this->getCryptoPrice($crypto->getName(), 'price');
+            $listeNameCrypto[$crypto->getName()] = $this->getCryptoPrice($crypto->getName(), 'name');
+            //$currentAPIPrice = "error 1008";
+            if(strpos($currentAPIPrice,'error ') !== false || strpos($listeNameCrypto[$crypto->getName()], 'error ') !== false)
+            { 
+                var_dump('Je passe dans le if');
+                $errorCode = str_replace('error ', '', $currentAPIPrice);
+                var_dump($errorCode);
+                return $this->render('crypto/error_page.html.twig', ['message' => $this->getErrorMessageAPI($errorCode)]);
+            }
             //On enregistre les valeurs dans un tableau
             $listeCurrentAPIPrice[$crypto->getName()] = $currentAPIPrice;
             //On calcule le total du prix actuel de la crypto avec la quantité que l'on as dans la base de donnée
             $currentTotalAPIPrice = $currentAPIPrice * $crypto->getQuantity();
-            $listeNameCrypto[$crypto->getName()] = $this->getCryptoPrice($crypto->getName(), 'name');
+            
             array_push($listePriceAchat, $crypto->getTotalPrice());
             array_push($listeCurrentTotalAPIPrice, $currentTotalAPIPrice);
         }
@@ -183,6 +192,9 @@ class CryptoController extends AbstractController
                 $cryptoSymbol = $suppressionMontant->getName();
                 //On récupère la quantité qu'on souhaite lui enlever
                 $quantity = $suppressionMontant->getQuantity();
+                if(\str_contains($quantity, ",")){
+                    \str_replace(",", ".", $quantity);
+                }
                 //On ajuste la quantité totale
                 $newQuantity = $currentQuantity - $quantity;
                 //On récupère le prix courrant de la cryptomonnaie
@@ -204,7 +216,8 @@ class CryptoController extends AbstractController
         return $this->render('crypto/suppression.html.twig', ['form' => $form->createView()]);
     }
 
-    public function getCryptoPrice($cryptoSigne, $info){
+    public function getCryptoPrice($cryptoSigne, $info)
+    {
         $em = $this->getDoctrine()->getManager();
         $apiRepository = $em->getRepository(API::class);
         $getAPI = $apiRepository->findAll();
@@ -231,14 +244,63 @@ class CryptoController extends AbstractController
         $response = curl_exec($curl); // Send the request, save the response
         curl_close($curl); // Close request
         $var = json_decode($response, true);
+        if($var['status']['error_code'] !== 0){
+            return 'error '.$var['status']['error_code'];
+        }
+
         if($info == 'price'){
             $price = $var['data'][$cryptoSigne]['quote']['EUR']['price'];
             return $price;
         }
         if($info == 'name'){
-            $price = $var['data'][$cryptoSigne]['name'];
-            return $price;
+            $name = $var['data'][$cryptoSigne]['name'];
+            return $name;
         }
             
+    }
+
+    public function getErrorMessageAPI($code){
+        switch($code){
+            case '1001':
+                return  "This API Key is invalid.";
+                break;
+            case '1002':
+                return "API key missing.";
+                break;
+            case '1003':
+                return "Your API Key must be activated. Please go to pro.coinmarketcap.com/account/plan.";
+                break;
+            case '1004':
+                return "Your API Key's subscription plan has expired.";
+                break;
+            case '1005':
+                return "An API Key is required for this call.";
+                break;
+            case '1006':
+                return "Your API Key subscription plan doesn't support this endpoint.";
+                break;
+            case '1007':
+                return "This API Key has been disabled. Please contact support.";
+                break;
+            case '1008':
+                return "You've exceeded your API Key's HTTP request rate limit. Rate limits reset every minute.";
+                break;
+            case '1009':
+                return "You've exceeded your API Key's daily rate limit.";
+                break;
+            case '1010':
+                return "You've exceeded your API Key's monthly rate limit.";
+                break;
+            case '1011':
+                return "You've hit an IP rate limit.";
+                break;
+        }
+    }
+
+    /**
+     * @Route("/", name="home")
+     */
+    public function home(){
+        return $this->redirectToRoute('accueil');
     }
 }

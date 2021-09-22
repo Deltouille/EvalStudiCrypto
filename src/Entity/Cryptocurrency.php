@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\CryptocurrencyRepository;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -26,6 +28,7 @@ class Cryptocurrency
      * @ORM\Column(type="float")
      */
     private $quantity;
+
 
     /**
      * @ORM\Column(type="float")
@@ -54,12 +57,12 @@ class Cryptocurrency
         return $this;
     }
 
-    public function getQuantity(): ?int
+    public function getQuantity(): ?float
     {
         return $this->quantity;
     }
 
-    public function setQuantity(int $quantity): self
+    public function setQuantity(float $quantity): self
     {
         $this->quantity = $quantity;
 
