@@ -242,7 +242,6 @@ class CryptoController extends AbstractController
         $var = json_decode($response, true);
         
         if($var['status']['error_code'] !== 0){
-            dd($var);
             return 'error '.$var['status']['error_code'];
         }
         return $var['data'];
