@@ -46,9 +46,9 @@ class CryptoController extends AbstractController
             $errorCode = str_replace('error ', '', $resultAPI);
             return $this->render('crypto/error_page.html.twig', ['message' => $this->getErrorMessageAPI($errorCode)]);
         }
-        
+
         $valorisation = $this->calculValorisation($resultAPI);
-        
+        var_dump($valorisation);
         if($sauvegardeJournaliere->findByDate($aujourdhui) == null){
             //On créer une nouvelle sauvegarde journalière
             $sauvegarde = new SauvegardeJournaliere();
@@ -78,7 +78,8 @@ class CryptoController extends AbstractController
             //var_dump('Total Price API : ' . $cryptoEnCours->getQuantity()*$tableauCrypto[$cryptoEnCours->getName()]['quote']['EUR']['price']);
             array_push($listeAPIPrice, $cryptoEnCours->getQuantity()*$tableauCrypto[$cryptoEnCours->getName()]['quote']['EUR']['price']);
         }
-        
+        var_dump($listeAPIPrice);
+        var_dump($listeBDDPrice);
         $valorisation = array_sum($listeAPIPrice) - array_sum($listeBDDPrice);
         return round($valorisation);
     }
