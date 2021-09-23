@@ -34,17 +34,17 @@
                     <tr>
                         <td style="color: #efefef;" class="font-bold"><img src="{{ asset('img/' ~ crypto.name ~ '.png') }}" class="w-10 float-left"><h3 class="float-left m-1">{{ crypto.name }}</h3>
                         {# On regarde pour chaque clés du tableau "listeCryptoName" (qui sont le nom des cryptomonnaie, BTC, ETH, Etc...) et on compare avec le nom de la crypto en cours afin d'afficher le nom complet de la crypto monnaie  #}
-                        {% for nomCrypto in listeCryptoName|keys %}
+                        {% for nomCrypto in resultAPI|keys %}
                             {% if nomCrypto == crypto.name %} 
-                                <p class="float-left m-1">({{listeCryptoName[nomCrypto]}}) </p>
+                                <p class="float-left m-1">({{resultAPI[nomCrypto]['name']}}) </p>
                             {% endif %}
                         {% endfor %}
                         {# On regarde chaque clés du tableau "listeCurrentAPIPrice" (qui sont le nom des cryptomonnaie, BTC, ETH, Etc...) et ont compare avec le nom de la crypto en cours afin d'afficher si le prix monte ou si le prix descend #}
-                        {% for nomCrypto in listeCurrentAPIPrice|keys %}
+                        {% for nomCrypto in resultAPI|keys %}
                             {% if nomCrypto == crypto.name %}
-                                {% if listeCurrentAPIPrice[nomCrypto] > crypto.price  %}
+                                {% if resultAPI[nomCrypto]['quote']['EUR']['price'] > crypto.price  %}
                                     <i class="fas fa-arrow-up fa-2x float-right" style="color: white;"></i>
-                                {% elseif listeCurrentAPIPrice[nomCrypto] < crypto.price %}
+                                {% elseif resultAPI[nomCrypto]['quote']['EUR']['price'] < crypto.price %}
                                     <i class="fas fa-arrow-down fa-2x float-right" style="color : white;"></i>
                                 {% endif %}
                             {% endif %}

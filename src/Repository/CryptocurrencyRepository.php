@@ -19,6 +19,10 @@ class CryptocurrencyRepository extends ServiceEntityRepository
         parent::__construct($registry, Cryptocurrency::class);
     }
 
+    public function getAllCryptoName(){
+        return $this->createQueryBuilder('c')->select('c.name')->distinct(true)->getQuery()->getResult();
+    }
+
     // /**
     //  * @return Cryptocurrency[] Returns an array of Cryptocurrency objects
     //  */
