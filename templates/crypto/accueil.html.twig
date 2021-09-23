@@ -36,7 +36,7 @@
                         {# On regarde pour chaque clés du tableau "listeCryptoName" (qui sont le nom des cryptomonnaie, BTC, ETH, Etc...) et on compare avec le nom de la crypto en cours afin d'afficher le nom complet de la crypto monnaie  #}
                         {% for nomCrypto in resultAPI|keys %}
                             {% if nomCrypto == crypto.name %} 
-                                <p class="float-left m-1">({{resultAPI[nomCrypto]['name']}}) </p> <p>Prix BDD : {{ crypto.price }}, + Quantité BDD : {{ crypto.quantity }}  Prix API : {{resultAPI[nomCrypto]['quote']['EUR']['price']}}</p>
+                                <p class="float-left m-1">({{resultAPI[nomCrypto]['name']}}) </p> <p>Prix BDD (Unitaire) : {{ crypto.price }}, + Quantité BDD : {{ crypto.quantity }}, Prix Total BDD : {{ crypto.totalPrice }},  ||  Prix API : {{resultAPI[nomCrypto]['quote']['EUR']['price']}}</p>
                             {% endif %}
                         {% endfor %}
                         {# On regarde chaque clés du tableau "listeCurrentAPIPrice" (qui sont le nom des cryptomonnaie, BTC, ETH, Etc...) et ont compare avec le nom de la crypto en cours afin d'afficher si le prix monte ou si le prix descend #}
