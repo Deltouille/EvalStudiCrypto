@@ -46,7 +46,9 @@ class CryptoController extends AbstractController
             $errorCode = str_replace('error ', '', $resultAPI);
             return $this->render('crypto/error_page.html.twig', ['message' => $this->getErrorMessageAPI($errorCode)]);
         }
+        
         $valorisation = $this->calculValorisation($resultAPI);
+        
         if($sauvegardeJournaliere->findByDate($aujourdhui) == null){
             //On créer une nouvelle sauvegarde journalière
             $sauvegarde = new SauvegardeJournaliere();
