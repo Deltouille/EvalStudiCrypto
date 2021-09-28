@@ -6,7 +6,7 @@
 <div id="menu" class="bg-crypto-light" >
     <h1 style="color: white;" class="font-bold m-3">Crypto Tracker
     <a href="{{ path('ajout') }}"><i class="fas fa-plus fa-1x right-full float-right mr-1" style="color: white;"></i></a>
-    <a href="#"><i class="fas fa-pen fa-1x right-full float-right mr-1" id="btn-suppression" style="color: white;"></i></a></h1>
+    <a href="#"><i class="fas fa-pen fa-1x right-full float-right mr-8" id="btn-suppression" style="color: white;"></i></a></h1>
     
 </div>
 <div id="compteur" class="bg-black h-48 w-full overflow-hidden relative">
@@ -33,7 +33,7 @@
                 <tbody>
                     {% for crypto in listeCrypto %}
                     <tr>
-                        <td style="color: #efefef;" class="font-bold"><img src="{{ asset('img/' ~ crypto.name ~ '.png') }}" class="w-10 float-left"><h3 class="float-left m-1"><b>{{ crypto.name }}<b></h3>
+                        <td style="color: #efefef;" class="font-bold"><img src="{{ asset('img/' ~ crypto.name ~ '.png') }}" class="w-10 float-left" alt="Symbole de la cryptommonaie {{ asset('img/' ~ crypto.name ~ '.png') }}"><h3 class="float-left m-1"><b>{{ crypto.name }}<b></h3>
                         {# On regarde pour chaque clés du tableau "listeCryptoName" (qui sont le nom des cryptomonnaie, BTC, ETH, Etc...) et on compare avec le nom de la crypto en cours afin d'afficher le nom complet de la crypto monnaie  #}
                         {% for nomCrypto in resultAPI|keys %}
                             {% if nomCrypto == crypto.name %} 
@@ -50,7 +50,7 @@
                                 {% endif %}
                             {% endif %}
                         {% endfor %}
-                            <a href="{{ path('suppression-montant', {id: crypto.id}) }}"><button  class="fas fa-pen  fa-1x right-full float-center mr-2 mt-2 jshide" id="crypto-suppression" style="color: white;">Modifier</button></a>
+                            <a href="{{ path('suppression-montant', {id: crypto.id}) }}"><button class="fas fa-edit fa-2x right-full float-right mr-8 jshidden" style="color: #efefef;"></button></a>
                         </td>
                     </tr>
                     {% endfor %}
@@ -67,12 +67,10 @@
 <script type="text/javascript">
     $(document).ready( function () {
         $("td").each(function(item) {
-            $(".jshide").hide();
+            $(".jshidden").hide();
         });
         $("#btn-suppression").click(function() {
-                $("td").each(function(item) {
-                    $(".jshide").toggle();
-            });
+                    $(".jshidden").toggle('Drop');
         });
     } );
 </script>

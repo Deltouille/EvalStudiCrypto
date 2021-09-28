@@ -37,7 +37,7 @@ class CryptoModificationType extends AbstractType
                     'placeholder' => 'Insérez un montant a enlever (exemple : 0.01 bitcoin)',
                 )
             ))
-            ->add('submit', SubmitType::class)
+            ->add('Valider', SubmitType::class)
         ;
     }
 

@@ -44,7 +44,7 @@ class CryptoController extends AbstractController
         //Si le resultat retourné par la fonction getAPICryptoInfo dans la variable resultAPI est une chaine et qu'elle contient le mot 'error' alors on récupère le code erreur et on retourne une page d'erreur
         if(is_string($resultAPI) && strpos($resultAPI,'error ') !== false )
         { 
-            //On enlève 'error ' dans la chaine pour ne récupèrer que le code erreur
+            //On enlève 'error ' dans la chaine pour ne récupérer que le code erreur
             $errorCode = str_replace('error ', '', $resultAPI);
             //On retourne une page d'erreur qui afficheras un message en fonction du code d'erreur rencontré et qui rechargeras la page d'accueil 1 minute après
             return $this->render('crypto/error_page.html.twig', ['message' => $this->getErrorMessageAPI($errorCode)]);
@@ -69,18 +69,25 @@ class CryptoController extends AbstractController
     }
 
     /**
-     * La fonction calculValorisation vas servir 
-    */
+     * La fonction calculValorisation vas servir a calculer la valorisation des cryptomonnaies présentes dans la base de donnée par rapport aux prix actuel récupérer par l'API en prenant en compte la quantité
+     * La fonction reçoit le tableau contenant toutes les informations des cryptomonnaies
+     */
     public function calculValorisation($tableauCrypto){
+        //On créer un tableau "listeAPIPrice" qui vas servir a récupérer le total des prix de chaque cryptomonnaie via l'api par rapport a la quantité dans la base de donnée
         $listeAPIPrice = array();
+        //On créer un tableau "listeBDDPrice" qui vas servir a récupèrer le prix total de chaque cryptomonnaie présente dans la base de données
         $listeBDDPrice = array();
         //On récupère l'entityManager
         $em = $this->getDoctrine()->getManager();
         //On récupère le repository de la classe Cryptocurrency
         $cryptoRepository = $em->getRepository(Cryptocurrency::class);
+        //On récupère toutes les cryptos présentent dans la base de données
         $listeCrypto = $cryptoRepository->findAll();
+        //On parcours toutes les cryptomonnaies
         foreach($listeCrypto as $cryptoEnCours){
+            //On push dans le tableau "listeBDDPrice" le prix total de la cryptomonnaie courrante
             array_push($listeBDDPrice, $cryptoEnCours->getTotalPrice());
+            //On push dans le tableau "listeAPIPrice" le prix actuel de la cryptomonnaie récupérer via l'API cumulé a la quantité présente dans la base de donnée pour la cryptomonnaie courrante
             array_push($listeAPIPrice, $cryptoEnCours->getQuantity()*$tableauCrypto[$cryptoEnCours->getName()]['quote']['EUR']['price']);
         }
         $valorisation = array_sum($listeAPIPrice) - array_sum($listeBDDPrice);
@@ -188,7 +195,7 @@ class CryptoController extends AbstractController
      * Elle fonctionne de cette façon :
      * - Après avoir choisis la cryptomonnaie a modifier depuis la page d'accueil, on choisis la quantité a retirer
      * - Au moment d'appuyer sur le boutton "Submit", la fonction vas récuperer la quantité a enlever dans le formulaire et la soustraire a la quantité existante en base de donnée,
-     *   pour avoir la quantité finale. Une fois cela fait, la fonction vas récupèrer la valeur actuelle de la cryptomonnaie grâce a l'API de CoinMarketBase et vas ensuite calculer le nouveau total
+     *   pour avoir la quantité finale. Une fois cela fait, la fonction vas récupérer la valeur actuelle de la cryptomonnaie grâce a l'API de CoinMarketBase et vas ensuite calculer le nouveau total
      *   pour l'enregistrer dans la base de donnée
      * 
      * /!\ La valeur par défaut dans le formulaire du montant est celui enregistré dans la base de donnée /!\
@@ -234,14 +241,14 @@ class CryptoController extends AbstractController
     }
 
     /**
-     * La fonction getAPICryptoInfo vas servir a récupèrer les informations des cryptomonnaies voulus grâce a l'API de COINMARKETCAP
+     * La fonction getAPICryptoInfo vas servir a récupérer les informations des cryptomonnaies voulus grâce a l'API de COINMARKETCAP
      * 
      * Elle fonctionne de cette façon : 
-     * - Elle récupère un ou plusieurs "symbols" de cryptomonnaie en paramètre (par exemple : BTC, ETH, ADA,...) sous forme d'une chaine de charactère qui ressemble a : 'BTC' si on souhaite ne récupèrer
-     *   que les infos d'une seule crypto et qui ressemble a 'BTC,ETH,ADA,DOGE' si on souhaite récupèrer les informations de plusieurs cryptomonnaie en une seule fois
+     * - Elle récupère un ou plusieurs "symbols" de cryptomonnaie en paramètre (par exemple : BTC, ETH, ADA,...) sous forme d'une chaine de charactère qui ressemble a : 'BTC' si on souhaite ne récupérer
+     *   que les infos d'une seule crypto et qui ressemble a 'BTC,ETH,ADA,DOGE' si on souhaite récupérer les informations de plusieurs cryptomonnaie en une seule fois
      * - Elle récupère la clé d'API stockée en base de données et place la clé dans le tableau $headers.
-     * - Elle met dans la chaine de charactère des "Symbols" dans le tableau $parameters, associé a la clé "symbol" qui vas nous permettre de demandé a l'API de récupèrer les informations des cryptomonnaies demandées.
-     * - L'API nous retourne un JSON qui sera convertit en tableau que l'on vas récupèrer.
+     * - Elle met dans la chaine de charactère des "Symbols" dans le tableau $parameters, associé a la clé "symbol" qui vas nous permettre de demandé a l'API de récupérer les informations des cryptomonnaies demandées.
+     * - L'API nous retourne un JSON qui sera convertit en tableau que l'on vas récupérer.
      * - La fonction contient aussi une gestion d'erreur qui vérifie le code erreur retourné par l'API (par exemple en cas de mauvaise clé api)
      */
     public function getAPICryptoInfo($listeCrypto){
@@ -252,7 +259,7 @@ class CryptoController extends AbstractController
         //On récupère toutes les clé API présente en base de donnée (Il n'y en as que une)
         $getAPI = $apiRepository->findAll();
         setlocale(LC_MONETARY, 'fr_FR.UTF-8');
-        //L'url de l'api servant a récupèrer les informations des cryptomonnaies
+        //L'url de l'api servant a récupérer les informations des cryptomonnaies
         $url = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest';
         //Les parametres qu'on envoie a l'API
         $parameters = [
@@ -292,7 +299,7 @@ class CryptoController extends AbstractController
     }
 
     /**
-     * La fonction getErrorMessageAPI vas servir a récupèrer le message correspondant en cas d'erreur avec l'API
+     * La fonction getErrorMessageAPI vas servir a récupérer le message correspondant en cas d'erreur avec l'API
      */
     public function getErrorMessageAPI($code){
         switch($code){

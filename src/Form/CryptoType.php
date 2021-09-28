@@ -43,7 +43,7 @@ class CryptoType extends AbstractType
                     'placeholder' => 'Prix d\'achat (a l\'unité)',
                 )
             ))
-            ->add('submit', SubmitType::class)
+            ->add('Ajouter', SubmitType::class)
         ;
     }
 
