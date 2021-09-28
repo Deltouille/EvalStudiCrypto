@@ -28,7 +28,7 @@ class Cryptocurrency
     /**
      * @ORM\Column(type="float")
      * @Assert\NotBlank
-     * @Assert\Positive
+     * @Assert\Positive(message="La quantité ne doit pas être un nombre négatif")
      * 
      */
     private $quantity;
@@ -37,7 +37,7 @@ class Cryptocurrency
     /**
      * @ORM\Column(type="float")
      * @Assert\NotBlank
-     * @Assert\Positive
+     * @Assert\Positive(message="Le prix ne doit pas être un nombre négatif")
      */
     private $price;
 

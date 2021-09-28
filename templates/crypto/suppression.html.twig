@@ -21,7 +21,7 @@
 {% block javascripts %}
 <script type="text/javascript">
     $(document).ready( function () {
-        console.log($("#crypto_modification_quantity").val());
+        $("ul li").css('color', 'red');
         $("#crypto_modification_quantity").val('');
         $("#crypto_modification_quantity").attr("placeholder", "Choisissez un montant a retirer a cette cryptomonnaie");
     } );

@@ -50,7 +50,7 @@
                                 {% endif %}
                             {% endif %}
                         {% endfor %}
-                            <a href="{{ path('suppression-montant', {id: crypto.id}) }}"><i class="fas fa-pen  fa-1x right-full float-center mr-2 mt-2 jshide" id="crypto-suppression" style="color: white;"></i></a>
+                            <a href="{{ path('suppression-montant', {id: crypto.id}) }}"><button  class="fas fa-pen  fa-1x right-full float-center mr-2 mt-2 jshide" id="crypto-suppression" style="color: white;">Modifier</button></a>
                         </td>
                     </tr>
                     {% endfor %}
@@ -70,9 +70,9 @@
             $(".jshide").hide();
         });
         $("#btn-suppression").click(function() {
-            $("td").each(function(item) {
-            $(".jshide").show();
-        });
+                $("td").each(function(item) {
+                    $(".jshide").toggle();
+            });
         });
     } );
 </script>
