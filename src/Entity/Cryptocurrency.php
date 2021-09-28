@@ -21,22 +21,29 @@ class Cryptocurrency
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Assert\NotBlank
      */
     private $name;
 
     /**
      * @ORM\Column(type="float")
+     * @Assert\NotBlank
+     * @Assert\Positive
+     * 
      */
     private $quantity;
 
 
     /**
      * @ORM\Column(type="float")
+     * @Assert\NotBlank
+     * @Assert\Positive
      */
     private $price;
 
     /**
      * @ORM\Column(type="float")
+     * 
      */
     private $totalPrice;
 

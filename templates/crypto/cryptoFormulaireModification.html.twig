@@ -21,7 +21,7 @@
             {# Génération du label #}
             {{ form_label(form.quantity, "Quantitée a enlever (par exemple : 0.01 bitcoin)", {'label_attr': {'class': 'cal-sm-2 control-label mt-4', 'style': 'color: white;'}}) }}
             {# Affichage des erreurs pour ce champ précis #}
-            {{ form_errors(form.quantity) }}
+            {{ form_errors(form.quantity, {'attr': {'style': 'color: red;'}}) }}
             <div>
                 {# Génération de l'input. #}
                 {{ form_widget(form.quantity, {'attr': {'class': 'form-control', 'style': 'background-color: #100f0f; color: white;'}}) }}

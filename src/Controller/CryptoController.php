@@ -41,29 +41,36 @@ class CryptoController extends AbstractController
         $stringCrypto = implode(",",$tableauNomCrypto);
         //On récupère toutes les infos grâce a l'API
         $resultAPI = $this->getAPICryptoInfo($stringCrypto);
+        //Si le resultat retourné par la fonction getAPICryptoInfo dans la variable resultAPI est une chaine et qu'elle contient le mot 'error' alors on récupère le code erreur et on retourne une page d'erreur
         if(is_string($resultAPI) && strpos($resultAPI,'error ') !== false )
         { 
+            //On enlève 'error ' dans la chaine pour ne récupèrer que le code erreur
             $errorCode = str_replace('error ', '', $resultAPI);
+            //On retourne une page d'erreur qui afficheras un message en fonction du code d'erreur rencontré et qui rechargeras la page d'accueil 1 minute après
             return $this->render('crypto/error_page.html.twig', ['message' => $this->getErrorMessageAPI($errorCode)]);
         }
-
+        //On calcul la valorisation en passant le tableau contenant les informations des cryptomonnaie dans la fonction calculValorisation
         $valorisation = $this->calculValorisation($resultAPI);
-        var_dump($valorisation);
+        //On regarde si on trouve un champs qui a la même date que la data d'aujourd'hui dans la table 'SauvegardeJournalière' de la base de donnée, si non on enregistre la date du jour avec la valorisation
         if($sauvegardeJournaliere->findByDate($aujourdhui) == null){
             //On créer une nouvelle sauvegarde journalière
             $sauvegarde = new SauvegardeJournaliere();
             //On lui passe la date du jour
             $sauvegarde->setDate($aujourdhui);
-            //On lui passe la valorisation du jour
+            //On lui passe la valorisation arrondie du jour
             $sauvegarde->setValorisationTotale(round($valorisation));
             //On persist dans la base de donnée
             $em->persist($sauvegarde);
             //On flush
             $em->flush();
         }
+        //On retourne la page d'accueil qui afficheras les cryptomonnaies sauvegardées dans la base de données, la valorisation actuelle
         return $this->render('crypto/accueil.html.twig', ['listeCrypto' => $listeCrypto, 'valorisation' => $valorisation, 'resultAPI' => $resultAPI]);
     }
 
+    /**
+     * La fonction calculValorisation vas servir 
+    */
     public function calculValorisation($tableauCrypto){
         $listeAPIPrice = array();
         $listeBDDPrice = array();
@@ -73,13 +80,9 @@ class CryptoController extends AbstractController
         $cryptoRepository = $em->getRepository(Cryptocurrency::class);
         $listeCrypto = $cryptoRepository->findAll();
         foreach($listeCrypto as $cryptoEnCours){
-            //var_dump('Total Price BDD : '. $cryptoEnCours->getTotalPrice());
             array_push($listeBDDPrice, $cryptoEnCours->getTotalPrice());
-            //var_dump('Total Price API : ' . $cryptoEnCours->getQuantity()*$tableauCrypto[$cryptoEnCours->getName()]['quote']['EUR']['price']);
             array_push($listeAPIPrice, $cryptoEnCours->getQuantity()*$tableauCrypto[$cryptoEnCours->getName()]['quote']['EUR']['price']);
         }
-        var_dump($listeAPIPrice);
-        var_dump($listeBDDPrice);
         $valorisation = array_sum($listeAPIPrice) - array_sum($listeBDDPrice);
         return round($valorisation);
     }
@@ -127,16 +130,31 @@ class CryptoController extends AbstractController
 
     /**
      * @Route("/graph", name="graph")
+     * 
+     * La fonction graph vas servir a afficher un graphique de toutes les valorisations chaque jours, présentes dans la base de donnée
+     * Elle fonctionne de cette façon : 
+     * - Elle récupère tout les champs de la table "SauvegardeJournalière" dans la base de donnée
+     * - Pour chaque sauvegarde elle enregistre la date et la valorisation dans 2 tableau
+     * - Elle met les dates comme labels pour l'axe des abscisses
+     * - Elle met la valeur minimale et maximale présente dans le tableau des valorisations pour l'axe des ordonnées   
      */
     public function graph(ChartBuilderInterface $chartBuilder): Response
     {
+        //On récupère l'entityManager
         $em = $this->getDoctrine()->getManager();
+        //On récupère le repository des sauvegarde journalières
         $sauvegardeJournaliere = $em->getRepository(SauvegardeJournaliere::class);
+        //On récupère tout les champs dans la table
         $listeSauvegarde = $sauvegardeJournaliere->findAll();
+        //On créer un tableau qui vas servir a stocker les dates
         $listeSauvegardeDates = array();
+        //On créer un tableau qui vas servir a stocker les valorisations
         $listeSauvegardeValorisation = array(); 
+        //On parcours chaque sauvegarde
         foreach($listeSauvegarde as $laSauvegarde){
+            //On enregistre la date de la sauvegarde courante dans le tableau listeSauvegardeDate
             array_push($listeSauvegardeDates, $laSauvegarde->getDate());
+            //On enregistre la valorisation de la sauvegarde courante dans le tableau listeSauvegardeDate
             array_push($listeSauvegardeValorisation, $laSauvegarde->getValorisationTotale());
         }
         $chart = $chartBuilder->createChart(Chart::TYPE_LINE);
@@ -153,7 +171,7 @@ class CryptoController extends AbstractController
         $chart->setOptions([
             'scales' => [
                 'yAxes' => [
-                    ['ticks' => ['min' => 0, 'max' => 50000]],
+                    ['ticks' => ['min' => min($listeSauvegardeValorisation), 'max' => max($listeSauvegardeValorisation)]],
                 ],
             ],
         ]);
@@ -166,7 +184,7 @@ class CryptoController extends AbstractController
     /**
      * @Route("/suppression-montant/{id}", name="suppression-montant")
      * 
-     * La fonctionne suppressionMontant vas servir a enlever une certaine quantité d'une cryptomonnaie choisie.
+     * La fonction suppressionMontant vas servir a enlever une certaine quantité d'une cryptomonnaie choisie.
      * Elle fonctionne de cette façon :
      * - Après avoir choisis la cryptomonnaie a modifier depuis la page d'accueil, on choisis la quantité a retirer
      * - Au moment d'appuyer sur le boutton "Submit", la fonction vas récuperer la quantité a enlever dans le formulaire et la soustraire a la quantité existante en base de donnée,
@@ -215,19 +233,39 @@ class CryptoController extends AbstractController
         return $this->render('crypto/suppression.html.twig', ['form' => $form->createView()]);
     }
 
-
+    /**
+     * La fonction getAPICryptoInfo vas servir a récupèrer les informations des cryptomonnaies voulus grâce a l'API de COINMARKETCAP
+     * 
+     * Elle fonctionne de cette façon : 
+     * - Elle récupère un ou plusieurs "symbols" de cryptomonnaie en paramètre (par exemple : BTC, ETH, ADA,...) sous forme d'une chaine de charactère qui ressemble a : 'BTC' si on souhaite ne récupèrer
+     *   que les infos d'une seule crypto et qui ressemble a 'BTC,ETH,ADA,DOGE' si on souhaite récupèrer les informations de plusieurs cryptomonnaie en une seule fois
+     * - Elle récupère la clé d'API stockée en base de données et place la clé dans le tableau $headers.
+     * - Elle met dans la chaine de charactère des "Symbols" dans le tableau $parameters, associé a la clé "symbol" qui vas nous permettre de demandé a l'API de récupèrer les informations des cryptomonnaies demandées.
+     * - L'API nous retourne un JSON qui sera convertit en tableau que l'on vas récupèrer.
+     * - La fonction contient aussi une gestion d'erreur qui vérifie le code erreur retourné par l'API (par exemple en cas de mauvaise clé api)
+     */
     public function getAPICryptoInfo($listeCrypto){
+        //On récupère l'entityManager
         $em = $this->getDoctrine()->getManager();
+        //On récupère le repository de la classe API
         $apiRepository = $em->getRepository(API::class);
+        //On récupère toutes les clé API présente en base de donnée (Il n'y en as que une)
         $getAPI = $apiRepository->findAll();
         setlocale(LC_MONETARY, 'fr_FR.UTF-8');
+        //L'url de l'api servant a récupèrer les informations des cryptomonnaies
         $url = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest';
+        //Les parametres qu'on envoie a l'API
         $parameters = [
+                //Le ou les "Symbols" passés en paramètres de la fonction ('BTC'/'BTC,ETH,ADA')
                 'symbol' => $listeCrypto,
+                //Comment le prix doit être retourné par l'API (EUR = EURO, USD = US Dollars, etc... )
                 'convert' => 'EUR'
             ];
+        //Les Headers
         $headers = [
+                //On demande a l'API de retourner la réponse en JSON
                 'Accepts: application/json',
+                //On passe notre clé API
                 'X-CMC_PRO_API_KEY: '.$getAPI[0]->getAPI(),
             ];
         $qs = http_build_query($parameters); // query string encode the parameters
@@ -242,16 +280,20 @@ class CryptoController extends AbstractController
             
         $response = curl_exec($curl); // Send the request, save the response
         curl_close($curl); // Close request
+        //On transforme la réponse JSON de l'api en tableau
         $var = json_decode($response, true);
-        
+        //On regarde si le code erreur retrouné par l'API est différent de 0
         if($var['status']['error_code'] !== 0){
+            //Si il l'est alors on retourne une chaine comportant 'error ' + le code erreur retourné par l'API
             return 'error '.$var['status']['error_code'];
         }
+        //On retourne les informations des cryptomonnaies
         return $var['data'];
     }
 
-    
-
+    /**
+     * La fonction getErrorMessageAPI vas servir a récupèrer le message correspondant en cas d'erreur avec l'API
+     */
     public function getErrorMessageAPI($code){
         switch($code){
             case '1001':

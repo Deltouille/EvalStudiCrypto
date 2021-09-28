@@ -11,9 +11,19 @@
 <div>
     <div class="justify-center">
         </div>
-        <h1 class="text-center" style="color: white;"><a href="{{ path('accueil')}}" style="color: white;"><i class="fas fa-times float-left ml-5 mt-2"></a></i>Ajout d'une crypto</h1>
+        <h1 class="text-center" style="color: white;"><a href="{{ path('accueil')}}" style="color: white;"><i class="fas fa-times float-left ml-5 mt-2"></a></i><b>Supprimer un montant<b></h1>
         <hr />
         {{ include('crypto/cryptoFormulaireModification.html.twig')}}
     </div>
 </html>
+{% endblock %}
+
+{% block javascripts %}
+<script type="text/javascript">
+    $(document).ready( function () {
+        console.log($("#crypto_modification_quantity").val());
+        $("#crypto_modification_quantity").val('');
+        $("#crypto_modification_quantity").attr("placeholder", "Choisissez un montant a retirer a cette cryptomonnaie");
+    } );
+</script>
 {% endblock %}

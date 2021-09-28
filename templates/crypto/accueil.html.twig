@@ -1,11 +1,12 @@
 {% extends 'base.html.twig' %}
  
-{% block title %}Hello DemoController!{% endblock %}
+{% block title %}Accueil{% endblock %}
  
 {% block body %}
 <div id="menu" class="bg-crypto-light" >
     <h1 style="color: white;" class="font-bold m-3">Crypto Tracker
-    <a href="{{ path('ajout') }}"><i class="fas fa-plus fa-1x right-full float-right mr-1" style="color: white;"></i></a></h1>
+    <a href="{{ path('ajout') }}"><i class="fas fa-plus fa-1x right-full float-right mr-1" style="color: white;"></i></a>
+    <a href="#"><i class="fas fa-pen fa-1x right-full float-right mr-1" id="btn-suppression" style="color: white;"></i></a></h1>
     
 </div>
 <div id="compteur" class="bg-black h-48 w-full overflow-hidden relative">
@@ -32,11 +33,11 @@
                 <tbody>
                     {% for crypto in listeCrypto %}
                     <tr>
-                        <td style="color: #efefef;" class="font-bold"><img src="{{ asset('img/' ~ crypto.name ~ '.png') }}" class="w-10 float-left"><h3 class="float-left m-1">{{ crypto.name }}</h3>
+                        <td style="color: #efefef;" class="font-bold"><img src="{{ asset('img/' ~ crypto.name ~ '.png') }}" class="w-10 float-left"><h3 class="float-left m-1"><b>{{ crypto.name }}<b></h3>
                         {# On regarde pour chaque clés du tableau "listeCryptoName" (qui sont le nom des cryptomonnaie, BTC, ETH, Etc...) et on compare avec le nom de la crypto en cours afin d'afficher le nom complet de la crypto monnaie  #}
                         {% for nomCrypto in resultAPI|keys %}
                             {% if nomCrypto == crypto.name %} 
-                                <p class="float-left m-1">({{resultAPI[nomCrypto]['name']}}) </p> <p>Prix BDD (Unitaire) : {{ crypto.price }}, + Quantité BDD : {{ crypto.quantity }}, Prix Total BDD : {{ crypto.totalPrice }},  ||  Prix API : {{resultAPI[nomCrypto]['quote']['EUR']['price']}}</p>
+                                <p class="float-left m-1 font-thin">({{resultAPI[nomCrypto]['name']}})</p>
                             {% endif %}
                         {% endfor %}
                         {# On regarde chaque clés du tableau "listeCurrentAPIPrice" (qui sont le nom des cryptomonnaie, BTC, ETH, Etc...) et ont compare avec le nom de la crypto en cours afin d'afficher si le prix monte ou si le prix descend #}
@@ -49,7 +50,7 @@
                                 {% endif %}
                             {% endif %}
                         {% endfor %}
-                            <a href="{{ path('suppression-montant', {id: crypto.id}) }}"><i class="fas fa-pen  fa-1x right-full float-right mr-2 mt-2" style="color: white;"></i></a>
+                            <a href="{{ path('suppression-montant', {id: crypto.id}) }}"><i class="fas fa-pen  fa-1x right-full float-center mr-2 mt-2 jshide" id="crypto-suppression" style="color: white;"></i></a>
                         </td>
                     </tr>
                     {% endfor %}
@@ -60,4 +61,19 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block javascripts %}
+<script type="text/javascript">
+    $(document).ready( function () {
+        $("td").each(function(item) {
+            $(".jshide").hide();
+        });
+        $("#btn-suppression").click(function() {
+            $("td").each(function(item) {
+            $(".jshide").show();
+        });
+        });
+    } );
+</script>
 {% endblock %}
