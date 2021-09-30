@@ -22,8 +22,21 @@
 <script type="text/javascript">
     $(document).ready( function () {
         $("ul li").css('color', 'red');
-        $("#crypto_modification_quantity").val('');
-        $("#crypto_modification_quantity").attr("placeholder", "Choisissez un montant a retirer a cette cryptomonnaie");
+        quantity = $("#crypto_modification_quantity").val();
+        if(quantity > 0){
+            document.cookie = quantity;
+            $("#crypto_modification_quantity").val('');
+            $("#crypto_modification_quantity").attr("placeholder", "Choisissez un montant a retirer a cette cryptomonnaie, montant actuel : " + quantity);
+        }
+        if(quantity < 0){
+            $("#crypto_modification_quantity").val('');
+            $("#crypto_modification_quantity").attr("placeholder", "Choisissez un montant a retirer a cette cryptomonnaie, montant actuel : " + document.cookie);
+        }
+        if(quantity == 0){
+            console.log('oui');
+            $("#crypto_modification_quantity").val('');
+            $("#crypto_modification_quantity").attr("placeholder", "La quantité actuelle de cette crypto est de 0");
+        }
     } );
 </script>
 {% endblock %}

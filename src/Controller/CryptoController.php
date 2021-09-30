@@ -221,8 +221,24 @@ class CryptoController extends AbstractController
                 $quantity = $suppressionMontant->getQuantity();
                 //On ajuste la quantité totale
                 $newQuantity = $currentQuantity - $quantity;
+                //Si la nouvelle quantité est inférieur ou égale a 0
+                if($newQuantity <= 0){
+                    //On supprime la cryptomonnaie de la base de données
+                    $em->remove($suppressionMontant);
+                    $em->flush();
+                    //On redirige vers l'accueil
+                    $this->redirectToRoute('accueil');
+                }
                 //On récupère le prix courrant de la cryptomonnaie
                 $infoCrypto = $this->getAPICryptoInfo($cryptoSymbol);
+                //Si le resultat retourné par la fonction getAPICryptoInfo dans la variable resultAPI est une chaine et qu'elle contient le mot 'error' alors on récupère le code erreur et on retourne une page d'erreur
+                if(is_string($infoCrypto) && strpos($infoCrypto,'error ') !== false )
+                { 
+                    //On enlève 'error ' dans la chaine pour ne récupérer que le code erreur
+                    $errorCode = str_replace('error ', '', $infoCrypto);
+                    //On retourne une page d'erreur qui afficheras un message en fonction du code d'erreur rencontré et qui rechargeras la page d'accueil 1 minute après
+                    return $this->render('crypto/error_page.html.twig', ['message' => $this->getErrorMessageAPI($errorCode)]);
+                }
                 //On ajuste le prix 
                 $totalPrice = $newQuantity * $infoCrypto[$cryptoSymbol]['quote']['EUR']['price'];
                 //On met a jour le prix total
