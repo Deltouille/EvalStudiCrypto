@@ -208,6 +208,11 @@ class CryptoController extends AbstractController
         $cryptoRepository = $em->getRepository(Cryptocurrency::class);
         //On récupère la cryptomonnaie a modifier
         $suppressionMontant = $cryptoRepository->find($id);
+        //On vérifie si la cryptomonnaie choisis existe dans la base de données
+        if($suppressionMontant === null){
+            $message = 'La crypto monnaie choisis n\'existe pas dans la base de données';
+            return $this->render('crypto/error_page.html.twig', ['message' => $message]);
+        }
         //On récupère la quantité présente en base de donnée
         $currentQuantity = $suppressionMontant->getQuantity();
         //On créer un formulaire
